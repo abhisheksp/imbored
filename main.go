@@ -19,7 +19,7 @@ func main() {
 	router := gin.Default()
 
 	router.POST("/testpath/:testparam", handler.TestHandler)
-	router.POST("/music/:artist", handler.MusicHandler)
+	router.POST("/music/:artists", handler.MusicHandler)
 
 
 	router.Run(":" + port)

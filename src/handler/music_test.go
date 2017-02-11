@@ -11,11 +11,12 @@ import (
 
 )
 
+
 func TestMusicHandler(t *testing.T) {
 	r := gin.New()
-	r.POST("/music/:artist", MusicHandler)
+	r.POST("/music/:artists", MusicHandler)
 
-	req, err := http.NewRequest("POST", "/music/linkin park", nil)
+	req, err := http.NewRequest("POST", "/music/linkin park, metallica", nil)
 	require.NoError(t, err, "no error expected creating request")
 
 	res := httptest.NewRecorder()
