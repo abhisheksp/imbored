@@ -9,14 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMusicHandler(t *testing.T) {
+func TestMovieHandler(t *testing.T) {
 	r := gin.New()
-	r.POST("/music/:artists", MusicHandler)
+	r.POST("/movies/:movies", MovieHandler)
 
-	req, err := http.NewRequest("POST", "/music/linkin park, metallica", nil)
+	req, err := http.NewRequest("POST", "/movies/interstellar", nil)
 	require.NoError(t, err, "no error expected creating request")
 
 	res := httptest.NewRecorder()
 	r.ServeHTTP(res, req)
-
 }

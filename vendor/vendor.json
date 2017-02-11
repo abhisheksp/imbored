@@ -65,6 +65,12 @@
 			"revisionTime": "2016-05-24T23:42:29Z"
 		},
 		{
+			"checksumSHA1": "w3L3aarRy89mqIlRYodjNEjyDsQ=",
+			"path": "github.com/ryanbradynd05/go-tmdb",
+			"revision": "e052aaf19567df58b369c42adc5a0380b0cc3a33",
+			"revisionTime": "2016-09-21T05:08:00Z"
+		},
+		{
 			"checksumSHA1": "Bn333k9lTndxU3D6n/G5c+GMcYY=",
 			"path": "github.com/stretchr/testify/assert",
 			"revision": "8d64eb7173c7753d6419fd4a9caf057398611364",
