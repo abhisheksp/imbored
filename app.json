@@ -1,0 +1,9 @@
+{
+  "name": "bored",
+  "description": "bored",
+  "keywords": [],
+  "image": "heroku/go:1.6",
+  "mount_dir": "src/github.com/abhisheksp/bored",
+  "website": "https://github.com/abhisheksp/bored",
+  "repository": "https://github.com/abhisheksp/bored"
+}
