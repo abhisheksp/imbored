@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +13,6 @@ import (
 )
 
 const (
-	APIKey        = "82bb8117f63f31501095596db0260115"
 	ImageBasePath = "http://image.tmdb.org/t/p/w300/"
 )
 
@@ -23,6 +23,7 @@ type MovieResult struct {
 }
 
 func MovieHandler(c *gin.Context) {
+	APIKey := os.Getenv("TMDB_API_KEY")
 	t := tmdb.Init(APIKey)
 
 	movieStr := c.Param("movies")
