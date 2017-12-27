@@ -1,12 +1,12 @@
 package spotify
 
 import (
+	"context"
 	"crypto/tls"
 	"errors"
 	"net/http"
 	"os"
 
-	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 )
 
@@ -22,6 +22,8 @@ const (
 // The set of scopes you pass in your authentication request determines what access the
 // permissions the user is asked to grant.
 const (
+	// ScopeImageUpload seeks permission to upload images to Spotify on your behalf.
+	ScopeImageUpload = "ugc-image-upload"
 	// ScopePlaylistReadPrivate seeks permission to read
 	// a user's private playlists.
 	ScopePlaylistReadPrivate = "playlist-read-private"
@@ -40,7 +42,7 @@ const (
 	// ScopeUserFollowRead seeks read access to the list of
 	// artists and other users that a user follows.
 	ScopeUserFollowRead = "user-follow-read"
-	// ScopeUserLibraryModify seeks write/delete acess to a
+	// ScopeUserLibraryModify seeks write/delete access to a
 	// user's "Your Music" library.
 	ScopeUserLibraryModify = "user-library-modify"
 	// ScopeUserLibraryRead seeks read access to a user's "Your Music" library.
@@ -52,6 +54,16 @@ const (
 	ScopeUserReadEmail = "user-read-email"
 	// ScopeUserReadBirthdate seeks read access to a user's birthdate.
 	ScopeUserReadBirthdate = "user-read-birthdate"
+	// ScopeUserReadCurrentlyPlaying seeks read access to a user's currently playing track
+	ScopeUserReadCurrentlyPlaying = "user-read-currently-playing"
+	// ScopeUserReadPlaybackState seeks read access to the user's current playback state
+	ScopeUserReadPlaybackState = "user-read-playback-state"
+	// ScopeUserModifyPlaybackState seeks write access to the user's current playback state
+	ScopeUserModifyPlaybackState = "user-modify-playback-state"
+	// ScopeUserReadRecentlyPlayed allows access to a user's recently-played songs
+	ScopeUserReadRecentlyPlayed = "user-read-recently-played"
+	// ScopeUserTopRead seeks read access to a user's top tracks and artists
+	ScopeUserTopRead = "user-top-read"
 )
 
 // Authenticator provides convenience functions for implementing the OAuth2 flow.
@@ -148,6 +160,21 @@ func (a Authenticator) Exchange(code string) (*oauth2.Token, error) {
 func (a Authenticator) NewClient(token *oauth2.Token) Client {
 	client := a.config.Client(a.context, token)
 	return Client{
-		http: client,
+		http:    client,
+		baseURL: baseAddress,
 	}
+}
+
+// Token gets the client's current token.
+func (c *Client) Token() (*oauth2.Token, error) {
+	transport, ok := c.http.Transport.(*oauth2.Transport)
+	if !ok {
+		return nil, errors.New("spotify: oauth2 transport type not correct")
+	}
+	t, err := transport.Source.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
 }

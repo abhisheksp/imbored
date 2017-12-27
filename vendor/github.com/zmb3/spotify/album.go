@@ -1,10 +1,8 @@
 package spotify
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -15,6 +13,8 @@ import (
 type SimpleAlbum struct {
 	// The name of the album.
 	Name string `json:"name"`
+	// A slice of SimpleArtists
+	Artists []SimpleArtist `json:"artists"`
 	// The type of the album: one of "album",
 	// "single", or "compilation".
 	AlbumType string `json:"album_type"`
@@ -98,20 +98,15 @@ func (f *FullAlbum) ReleaseDateTime() time.Time {
 
 // GetAlbum gets Spotify catalog information for a single album, given its Spotify ID.
 func (c *Client) GetAlbum(id ID) (*FullAlbum, error) {
-	spotifyURL := fmt.Sprintf("%salbums/%s", baseAddress, id)
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+	spotifyURL := fmt.Sprintf("%salbums/%s", c.baseURL, id)
+
 	var a FullAlbum
-	err = json.NewDecoder(resp.Body).Decode(&a)
+
+	err := c.get(spotifyURL, &a)
 	if err != nil {
 		return nil, err
 	}
+
 	return &a, nil
 }
 
@@ -123,11 +118,6 @@ func toStringSlice(ids []ID) []string {
 	return result
 }
 
-// GetAlbums is a wrapper around DefaultClient.GetAlbums.
-func GetAlbums(ids ...ID) ([]*FullAlbum, error) {
-	return DefaultClient.GetAlbums(ids...)
-}
-
 // GetAlbums gets Spotify Catalog information for multiple albums, given their
 // Spotify IDs.  It supports up to 20 IDs in a single call.  Albums are returned
 // in the order requested.  If an album is not found, that position in the
@@ -136,22 +126,17 @@ func (c *Client) GetAlbums(ids ...ID) ([]*FullAlbum, error) {
 	if len(ids) > 20 {
 		return nil, errors.New("spotify: exceeded maximum number of albums")
 	}
-	spotifyURL := fmt.Sprintf("%salbums?ids=%s", baseAddress, strings.Join(toStringSlice(ids), ","))
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return nil, decodeError(resp.Body)
-	}
+	spotifyURL := fmt.Sprintf("%salbums?ids=%s", c.baseURL, strings.Join(toStringSlice(ids), ","))
+
 	var a struct {
 		Albums []*FullAlbum `json:"albums"`
 	}
-	err = json.NewDecoder(resp.Body).Decode(&a)
+
+	err := c.get(spotifyURL, &a)
 	if err != nil {
 		return nil, err
 	}
+
 	return a.Albums, nil
 }
 
@@ -186,21 +171,11 @@ func (at AlbumType) encode() string {
 	return strings.Join(types, ",")
 }
 
-// GetAlbumTracks is a wrapper around DefaultClient.GetAlbumTracks.
-func GetAlbumTracks(id ID) (*SimpleTrackPage, error) {
-	return DefaultClient.GetAlbumTracks(id)
-}
-
 // GetAlbumTracks gets the tracks for a particular album.
 // If you only care about the tracks, this call is more efficient
 // than GetAlbum.
 func (c *Client) GetAlbumTracks(id ID) (*SimpleTrackPage, error) {
 	return c.GetAlbumTracksOpt(id, -1, -1)
-}
-
-// GetAlbumTracksOpt is a wrapper around DefaultClient.GetAlbumTracksOpt.
-func GetAlbumTracksOpt(id ID, limit, offset int) (*SimpleTrackPage, error) {
-	return DefaultClient.GetAlbumTracksOpt(id, limit, offset)
 }
 
 // GetAlbumTracksOpt behaves like GetAlbumTracks, with the exception that it
@@ -209,7 +184,7 @@ func GetAlbumTracksOpt(id ID, limit, offset int) (*SimpleTrackPage, error) {
 // The offset argument can be used to specify the index of the first track to return.
 // It can be used along with limit to reqeust the next set of results.
 func (c *Client) GetAlbumTracksOpt(id ID, limit, offset int) (*SimpleTrackPage, error) {
-	spotifyURL := fmt.Sprintf("%salbums/%s/tracks", baseAddress, id)
+	spotifyURL := fmt.Sprintf("%salbums/%s/tracks", c.baseURL, id)
 	v := url.Values{}
 	if limit != -1 {
 		v.Set("limit", strconv.Itoa(limit))
@@ -221,16 +196,12 @@ func (c *Client) GetAlbumTracksOpt(id ID, limit, offset int) (*SimpleTrackPage, 
 	if optional != "" {
 		spotifyURL = spotifyURL + "?" + optional
 	}
-	resp, err := c.http.Get(spotifyURL)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
 
 	var result SimpleTrackPage
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	err := c.get(spotifyURL, &result)
 	if err != nil {
 		return nil, err
 	}
+
 	return &result, nil
 }

@@ -1,11 +1,14 @@
 package handler
 
 import (
+	"context"
 	"log"
 	"strings"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zmb3/spotify"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 type MusicResult struct {
@@ -22,13 +25,24 @@ type TopTrack struct {
 }
 
 func MusicHandler(c *gin.Context) {
-	artistsStr := c.Param("artists")
+	config := &clientcredentials.Config{
+		ClientID:     os.Getenv("SPOTIFY_CLIENT_ID"),
+		ClientSecret: os.Getenv("SPOTIFY_CLIENT_SECRET"),
+		TokenURL:     spotify.TokenURL,
+	}
 
+	token, err := config.Token(context.Background())
+	if err != nil {
+		log.Fatalf("couldn't get token: %v", err)
+	}
+	client := spotify.Authenticator{}.NewClient(token)
+
+	artistsStr := c.Param("artists")
 	artists := strings.Split(artistsStr, ",")
-	musicResults := []MusicResult{}
+	var musicResults []MusicResult
 
 	for _, artist := range artists {
-		results, err := spotify.Search(artist, spotify.SearchTypeArtist)
+		results, err := client.Search(artist, spotify.SearchTypeArtist)
 		if err != nil {
 			c.JSON(200, gin.H{
 				"error": "error finding artist",
@@ -37,19 +51,18 @@ func MusicHandler(c *gin.Context) {
 
 		//most relevant search result
 		artistID := results.Artists.Artists[0].ID
-
-		relatedArtists, err := spotify.GetRelatedArtists(artistID)
+		relatedArtists, err := client.GetRelatedArtists(artistID)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		relatedArtists = relatedArtists[:2]
 		for _, artist := range relatedArtists {
-			topTracks, err := spotify.GetArtistsTopTracks(artist.ID, spotify.CountryUSA)
+			topTracks, err := client.GetArtistsTopTracks(artist.ID, spotify.CountryUSA)
 			if err != nil {
 				log.Fatal(err)
 			}
-			trackResults := []TopTrack{}
+			var trackResults []TopTrack
 			topTracks = topTracks[:5]
 			for _, topTrack := range topTracks {
 				name := topTrack.Name

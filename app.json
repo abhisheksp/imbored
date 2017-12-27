@@ -1,9 +1,9 @@
 {
-  "name": "bored",
-  "description": "bored",
+  "name": "imbored",
+  "description": "imbored",
   "keywords": [],
-  "image": "heroku/go:1.6",
-  "mount_dir": "src/github.com/abhisheksp/bored",
-  "website": "https://github.com/abhisheksp/bored",
-  "repository": "https://github.com/abhisheksp/bored"
+  "image": "heroku/go:1.9",
+  "mount_dir": "src/github.com/abhisheksp/imbored",
+  "website": "https://github.com/abhisheksp/imbored",
+  "repository": "https://github.com/abhisheksp/imbored"
 }

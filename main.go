@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/abhisheksp/bored/src/handler"
+	"github.com/abhisheksp/imbored/src/handler"
 )
 
 func main() {

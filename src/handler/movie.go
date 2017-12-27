@@ -1,13 +1,14 @@
 package handler
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/ryanbradynd05/go-tmdb"
 	"log"
 	"strconv"
 	"strings"
 	"math/rand"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/ryanbradynd05/go-tmdb"
 )
 
 const (
@@ -44,9 +45,14 @@ func MovieHandler(c *gin.Context) {
 		movieID := likedMovie.Results[0].ID
 
 		options = map[string]string{"page": "1"}
-		recommendedMovies, err := t.GetMovieRecommended(movieID, options)
+		recommendedMovies, err := t.GetMovieSimilar(movieID, options)
 		if err != nil {
 			log.Fatalf("error recommending movies: %s", err)
+		}
+
+		if len(recommendedMovies.Results) == 0 {
+			c.JSON(200, "no recommendations founds")
+			return
 		}
 
 		reducedResults := recommendedMovies.Results[:6]

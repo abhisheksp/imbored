@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMusicHandler(t *testing.T) {
@@ -19,4 +20,6 @@ func TestMusicHandler(t *testing.T) {
 	res := httptest.NewRecorder()
 	r.ServeHTTP(res, req)
 
+	status := res.Code
+	assert.Equal(t, http.StatusOK, status)
 }

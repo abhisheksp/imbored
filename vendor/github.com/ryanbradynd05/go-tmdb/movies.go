@@ -531,18 +531,6 @@ func (tmdb *TMDb) GetMovieSimilar(id int, options map[string]string) (*MoviePage
 	return result.(*MoviePagedResults), err
 }
 
-func (tmdb *TMDb) GetMovieRecommended(id int, options map[string]string) (*MoviePagedResults, error) {
-	var availableOptions = map[string]struct{}{
-		"page":               {},
-		"language":           {},
-		"append_to_response": {}}
-	var recommended MoviePagedResults
-	optionsString := getOptionsString(options, availableOptions)
-	uri := fmt.Sprintf("%s/movie/%v/recommendations?api_key=%s%s", baseURL, id, tmdb.apiKey, optionsString)
-	result, err := getTmdb(uri, &recommended)
-	return result.(*MoviePagedResults), err
-}
-
 // GetMovieTopRated gets the list of top rated movies
 // http://docs.themoviedb.apiary.io/#reference/movies/movietoprated/get
 func (tmdb *TMDb) GetMovieTopRated(options map[string]string) (*MoviePagedResults, error) {

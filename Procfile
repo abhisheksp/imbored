@@ -1,1 +1,1 @@
-web: bored
+web: imbored

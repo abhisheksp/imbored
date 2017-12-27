@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMovieHandler(t *testing.T) {
@@ -18,4 +19,7 @@ func TestMovieHandler(t *testing.T) {
 
 	res := httptest.NewRecorder()
 	r.ServeHTTP(res, req)
+
+	status := res.Code
+	assert.Equal(t, http.StatusOK, status)
 }
